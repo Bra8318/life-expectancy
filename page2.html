@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immunization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md w-full max-w-md">
+        <h1 class="text-xl sm:text-2xl font-bold mb-4 text-center">Life Expectancy Using Immunization Indicators</h1>
+        <p id="result" class="text-1xl font-bold text-center mt-4 text-blue-500"></p>
+        <div class="mt-6" id="form">
+            Country:
+            <input id="country" type="text" placeholder="Enter Country Name"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Polio:
+            <input id="polio" type="number" placeholder="Enter Polio vaccination rate "
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Diphtheria:
+            <input id="diphtheria" type="number" placeholder="Enter Diphtheria vaccination rate "
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Hepatitis B:
+            <input id="hepatitisb" type="number" placeholder="Enter Hepatitis B vaccination rate"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="getLifeExpectancy()"
+                class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition mt-6">
+                Calculate Life Expectancy
+            </button>
+        </div>
+        <div id="charts" class="mt-6 space-y-6 hidden">
+            <canvas id="myChart" class="w-full h-[300px]"></canvas>
+        </div>
+
+        <script>
+            let myChart = "";
+            function drawChart(country, polio, diphtheria, hepatitis, expectancy, rate) {
+                const ctx = document.getElementById('myChart').getContext('2d');
+
+                if (myChart) {
+                    myChart.destroy()
+                }
+
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Polio', 'Diphtheria', 'Hepatitis B', 'Life Expectancy', 'Vaccination rate'],
+                        datasets: [{
+                            label: `Immunization Indicators for ${country}`,
+                            data: [polio, diphtheria, hepatitis, expectancy, rate],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)'
+                            ],
+                            bordorColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+
+            async function getLifeExpectancy() {
+                const country = document.getElementById('country').value;
+                const polio = document.getElementById('polio').value;
+                const diphtheria = document.getElementById('diphtheria').value;
+                const hepatitis = document.getElementById('hepatitisb').value;
+
+                const result = document.getElementById('result');
+
+                function validateInput() {
+                    if (!country || !polio || !(diphtheria) || !(hepatitis)) {
+                        result.innerText = "Please fill in all fields correctly.";
+                        result.style.color = "red";
+                        return false;
+                    }
+
+                    if (isNaN(polio) || isNaN(diphtheria) || isNaN(hepatitis)) {
+                        result.innerText = "Please enter valid numbers for vaccination rates.";
+                        result.style.color = "red";
+                        return false;
+                    }
+                    return true;
+                }
+
+                if (!validateInput()) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://127.0.0.1:8000/immunity', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            Country: country,
+                            Polio: parseInt(polio),
+                            Diphtheria: parseInt(diphtheria),
+                            HepatitisB: parseInt(hepatitis)
+                        })
+                    });
+
+                    const data = await response.json();
+                    const message = data.prediction;
+                    const form = document.getElementById('form');
+                    const charts = document.getElementById('charts')
+
+                    if (data.status === 'success') {
+                        result.innerText = `Your estimated life expectancy is: ${message.prediction['Life expectancy'].toFixed(2)}`;
+                        result.innerText += `\n Vaccination coverage is: ${message.prediction['vaccination'].toFixed(2)}`;
+                        result.style.color = "green";
+                        form.classList.add('hidden');
+                        charts.classList.remove('hidden');
+                        drawChart(country,polio,diphtheria,hepatitis,message.prediction['Life expectancy'],message.prediction['vaccination']);
+
+                    } else {
+                        result.innerText = "Error calculating life expectancy.";
+                        result.style.color = "red";
+                    }
+
+                } catch (error) {
+                    result.innerText = "Error connecting to server.";
+                    result.style.color = "red";
+                }
+            }
+
+        </script>
+</body>
+
+</html>

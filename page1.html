@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md w-full max-w-md">
+        <h1 class="text-xl sm:text-2xl font-bold mb-4 text-center">Life Expectancy Using Health Indicators</h1>
+        <p id="result" class="text-1xl font-bold text-center mt-4 text-blue-500"></p>
+        <div class="mt-6" id="form">
+            Country:
+            <input id="country" type="text" placeholder="Enter Country Name"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            Adult Mortality:
+            <input id="mortality" type="number" placeholder="Enter Adult Mortality"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            Infant Deaths:
+            <input id="infant" type="number" placeholder="Enter Infant Deaths"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            BMI:
+            <input id="bmi" type="number" placeholder="Enter BMI"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-blue-500 underline cursor-pointer" onclick="calculateBmi()" id="calbmi">calculate your BMI
+            </p>
+
+            HIV/AIDS:
+            <input id="hiv" type="number" placeholder="Enter HIV/AIDS"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            Measles:
+            <input id="measles" type="number" placeholder="Enter Measles"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            Under-Five Deaths:
+            <input id="underfive" type="number" placeholder="Enter Under-Five Deaths"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            <button onclick="getLifeExpectancy()"
+                class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition mt-6">
+                Calculate Life Expectancy
+            </button>
+        </div>
+        <div id="charts" class="mt-6 space-y-6 hidden">
+            <canvas id="mainChart" class="w-full h-[400px]"></canvas>
+        </div>
+    </div>
+
+    <script>
+
+        function calculateBmi() {
+            const weight = prompt("Enter your weight in kg:");
+            const height = prompt("Enter your height in centimeters:");
+
+            if (weight && height) {
+                const bmi = weight / ((height / 100) ** 2);
+                document.getElementById('bmi').value = bmi.toFixed(2);
+                document.getElementById('calbmi').classList.add('hidden');
+
+            } else {
+                alert("Please enter valid weight and height.");
+            }
+        }
+
+        let mainChart = null;
+
+        function createMainChart(country, mortality, infant, bmi, hiv, measles, underfive, expectancy, disease, lifespan) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if (mainChart) {
+                mainChart.destroy();
+            }
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Adult Mortality', 'Infant Deaths', 'BMI', 'HIV/AIDS', 'Measles', 'Under-Five Deaths', 'Life Expectancy', 'Disease Burden', 'Lifespan'],
+                    datasets: [{
+                        label: `Health Indicators for ${country}`,
+                        data: [mortality, infant, bmi, hiv, measles, underfive, expectancy, disease, lifespan],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function getLifeExpectancy() {
+            const country = document.getElementById('country').value;
+            const mortality = parseFloat(document.getElementById('mortality').value);
+            const infant = parseFloat(document.getElementById('infant').value);
+            const bmi = parseFloat(document.getElementById('bmi').value);
+            const hiv = parseFloat(document.getElementById('hiv').value);
+            const measles = parseFloat(document.getElementById('measles').value);
+            const underfive = parseFloat(document.getElementById('underfive').value);
+
+            const result = document.getElementById('result');
+
+            function validateInput() {
+                if (!country || isNaN(mortality) || isNaN(infant) || isNaN(bmi) || isNaN(hiv) || isNaN(measles) || isNaN(underfive)) {
+                    result.innerText = "Please fill in all fields with valid numbers.";
+                    result.style.color = "red";
+                    return false;
+                }
+                return true;
+
+            }
+
+            if (!validateInput()) {
+                return;
+            }
+            const response = await fetch('http://127.0.0.1:8000/health', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    Country: country,
+                    Adult_Mortality: mortality,
+                    'infant deaths': infant,
+                    BMI: bmi,
+                    'HIV/AIDS': hiv,
+                    Measles: measles,
+                    'under-five deaths': underfive
+                })
+
+            });
+
+            const data = await response.json();
+            const message = data.prediction;
+            const form = document.getElementById('form');
+            const charts = document.getElementById('charts');
+
+            if (data.status === 'success') {
+                result.innerText = `Your estimated life expectancy is: ${message.prediction['Life expectancy'].toFixed(2)}\n`;
+                result.innerText += `Disease burden is: ${message.prediction['disease burden'].toFixed(2)}\n`;
+                result.innerText += `Life span is: ${message.prediction['lifespan'].toFixed(2)}`;
+                result.style.color = "green";
+                form.classList.add('hidden');
+                charts.classList.remove('hidden');
+                createMainChart(country, mortality, infant, bmi, hiv, measles, underfive, message.prediction['Life expectancy'], message.prediction['disease burden'], message.prediction['lifespan']);
+            } else {
+                result.innerText = "Error calculating life expectancy.";
+                result.style.color = "red";
+            }
+        }
+    </script>
+</body>
+
+</html>

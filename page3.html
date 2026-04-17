@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="bg-white p-6 sm:p-8 rounded-xl shadow-md w-full max-w-md">
+        <h1 class="text-xl sm:text-2xl font-bold mb-4 text-center">Life Expectancy Using Economic Indicators</h1>
+        <p id="result" class="text-1xl font-bold text-center mt-4 text-blue-500"></p>
+        <h2 class="font-semibold mb-2 cursor-pointer" onclick="instructions()" id="instructions">How to Fill the Form:
+        </h2>
+        <div class="bg-blue-50 p-4 rounded-lg mb-4 text-sm text-gray-700 hidden">
+            <ul class="list-disc ml-5 space-y-1">
+                <li><b>Country:</b> Enter your country name (e.g., India, USA).</li>
+                <li><b>Thinness 1–19 years:</b> Percentage of children aged 1–19 who are underweight (if unknown, use
+                    estimate like 10–20).</li>
+                <li><b>Thinness 5–9 years:</b> Percentage of children aged 5–9 who are underweight.</li>
+                <li><b>BMI:</b> Average Body Mass Index (Normal range: 18.5 – 24.9).</li>
+                <li><b>Infant Deaths:</b> Number of deaths per 1000 live births (e.g., 30).</li>
+                <li><b>Under-Five Deaths:</b> Deaths of children under age 5 per 1000 live births.</li>
+            </ul>
+        </div>
+        <div class="mt-6" id="form">
+            Country:
+            <input id="country" type="text" placeholder="Enter Country Name"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Thinness 1-19 years:
+            <input id="thinness" type="number" placeholder="Enter thinness of 1-19 years"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Thinness 5-9 years:
+            <input id="thinness59" type="number" placeholder="Enter thinness of 5-9 years"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            BMI:
+            <input id="bmi" type="number" placeholder="Enter BMI"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <p class="text-blue-500 underline cursor-pointer" onclick="calculateBMI()" id="calbmi">calculate your BMI
+            </p>
+            Infant Deaths:
+            <input id="infantdeaths" type="number" placeholder="Enter infant deaths (per 1000 live births)"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            Under-Five Deaths:
+            <input id="underfivedeaths" type="number" placeholder="Enter under-five deaths (per 1000 live births)"
+                class="w-full p-2 border rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="getLifeExpectancy()" id="calculateBtn"
+                class="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 transition mt-6">
+                Calculate Life Expectancy
+            </button>
+        </div>
+        <div id="report" class="hidden bg-gray-50 p-4 rounded-lg mt-4 text-gray-800"></div>
+        <div id="charts" class="mt-6 space-y-6 hidden">
+            <canvas id="myChart" class="w-full h-[300px]"></canvas>
+        </div>
+    </div>
+
+
+    <script>
+
+        function instructions() {
+            const instructions = document.getElementById('instructions');
+            const instructionsContent = document.querySelector('.bg-blue-50');
+            if (instructionsContent.classList.contains('hidden')) {
+                instructionsContent.classList.remove('hidden');
+                instructions.innerText = "Hide Instructions";
+            } else {
+                instructionsContent.classList.add('hidden');
+                instructions.innerText = "How to Fill the Form:";
+            }
+        }
+
+        function calculateBMI() {
+            const weight = prompt("Enter your weight in kg:");
+            const height = prompt("Enter your height in centimeters:");
+            if (weight && height) {
+                const bmi = (weight / ((height / 100) ** 2)).toFixed(2);
+                alert(`Your BMI is: ${bmi}`);
+                document.getElementById('bmi').value = bmi;
+                document.getElementById('calbmi').classList.add('hidden');
+            } else {
+                alert("Please enter valid weight and height.");
+            }
+        }
+        let myChart = null;
+        function drawChart(country, thinness1, thinness2, bmi, infant, underfive, expectancy, rate) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+
+            if (myChart) {
+                myChart.destroy()
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Thinness 1-19 years', 'Thinness 5-9 years', 'BMI', 'Infant Deaths', 'Under-Five Deaths', 'Life Expectancy', 'Vaccination rate'],
+                    datasets: [{
+                        label: `Immunization Indicators for ${country}`,
+                        data: [thinness1, thinness2, bmi, infant, underfive, expectancy, rate],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(255, 99, 132, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)'
+
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+         let mainChart = null;
+        let groupChart = null;
+        let rankingChart = null;
+
+        function drawCharts(api) {
+
+            const world = api.world_stat.mean;
+
+            const prediction = api.prediction["Life expectancy"];
+
+            const ctx1 = document.getElementById("mainChart").getContext("2d");
+
+            if (mainChart) mainChart.destroy();
+
+            mainChart = new Chart(ctx1, {
+                type: "bar",
+                data: {
+                    labels: [
+                        "GDP",
+                        "Income Composition",
+                        "Total Expenditure",
+                        "Life Expectancy"
+                    ],
+                    datasets: [
+                        {
+                            label: "World Average",
+                            data: [
+                                world.GDP,
+                                world["Income composition of resources"],
+                                world["Total expenditure"],
+                                world["Life expectancy"] || 70
+                            ],
+                            backgroundColor: "rgba(54, 162, 235, 0.5)"
+                        },
+                        {
+                            label: "Your Input + Prediction",
+                            data: [
+                                api.world_stat.mean.GDP, // replace if you send user input separately
+                                api.world_stat.mean["Income composition of resources"],
+                                api.world_stat.mean["Total expenditure"],
+                                prediction
+                            ],
+                            backgroundColor: "rgba(255, 99, 132, 0.5)"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "User vs World Comparison"
+                        }
+                    }
+                }
+            });
+
+            // =========================
+            // 2. GROUP COMPARISON CHART
+            // =========================
+            const group = api.group_stat;
+
+            const ctx2 = document.getElementById("groupChart").getContext("2d");
+
+            if (groupChart) groupChart.destroy();
+
+            groupChart = new Chart(ctx2, {
+                type: "bar",
+                data: {
+                    labels: Object.keys(group.GDP),
+                    datasets: [
+                        {
+                            label: "GDP by Group",
+                            data: Object.values(group.GDP),
+                            backgroundColor: "rgba(75, 192, 192, 0.5)"
+                        },
+                        {
+                            label: "Income Composition",
+                            data: Object.values(group["Income composition of resources"]),
+                            backgroundColor: "rgba(153, 102, 255, 0.5)"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Developed vs Developing Comparison"
+                        }
+                    }
+                }
+            });
+
+            // =========================
+            // 3. RANKING CHART
+            // =========================
+            const ranking = api.ranking;
+
+            const ctx3 = document.getElementById("rankingChart").getContext("2d");
+
+            if (rankingChart) rankingChart.destroy();
+
+            rankingChart = new Chart(ctx3, {
+                type: "bar",
+                data: {
+                    labels: ranking.map(r => r.Country),
+                    datasets: [{
+                        label: "Life Expectancy",
+                        data: ranking.map(r => r["Life expectancy"]),
+                        backgroundColor: "rgba(255, 206, 86, 0.5)"
+                    }]
+                },
+                options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Top Countries Ranking"
+                        }
+                    }
+                }
+            });
+        }
+
+        async function getLifeExpectancy() {
+            const country = document.getElementById('country').value;
+            const thinness = parseFloat(document.getElementById('thinness').value);
+            const thinness59 = parseFloat(document.getElementById('thinness59').value);
+            const bmi = parseFloat(document.getElementById('bmi').value);
+            const infantdeaths = parseInt(document.getElementById('infantdeaths').value);
+            const underfivedeaths = parseInt(document.getElementById('underfivedeaths').value);
+
+            const result = document.getElementById('result');
+            const calculate = document.getElementById('calculateBtn');
+
+            function validateInputs() {
+                if (!country || thinness === '' || thinness59 === '' || bmi === '' || infantdeaths === '' || underfivedeaths === '') {
+                    result.innerText = "Please fill in all fields.";
+                    result.style.color = "red";
+                    return false;
+                }
+                if (isNaN(thinness) || isNaN(thinness59) || isNaN(bmi) || isNaN(infantdeaths) || isNaN(underfivedeaths)) {
+                    result.innerText = "Please enter valid numbers for all fields.";
+                    result.style.color = "red";
+                    return false;
+                }
+                return true;
+            }
+
+            if (!validateInputs()) {
+                return;
+            }
+            calculate.innerText = "Calculating...";
+
+
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/nutrition", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        Country: country,
+                        'Thinness  1-19 years': thinness,
+                        'Thinness 5-9 years': thinness59,
+                        BMI: bmi,
+                        'infant deaths': infantdeaths,
+                        'under-five deaths': underfivedeaths
+                    })
+                })
+                const data = await response.json();
+                const message = data.prediction;
+                const form = document.getElementById('form');
+                const charts = document.getElementById('charts');
+                const instruction = document.getElementById('instructions');
+
+                if (data.status === 'success') {
+                    form.classList.add('hidden');
+                    instruction.classList.add('hidden');
+                    charts.classList.remove('hidden');
+
+                    const report = document.getElementById('report');
+
+                    const lifeExp = message.prediction['Life expectancy'];
+                    const nutrition = message.prediction['nutrition']*100;
+
+                    let analysis = "";
+
+                    if (lifeExp > 75) {
+                        analysis += "The country has a high life expectancy, indicating strong healthcare and living conditions. ";
+                    } else if (lifeExp > 60) {
+                        analysis += "The country has a moderate life expectancy, suggesting developing healthcare systems. ";
+                    } else {
+                        analysis += "The country has a low life expectancy, indicating potential health and economic challenges. ";
+                    }
+
+                    if (nutrition > 70) {
+                        analysis += "Nutrition levels are good, meaning people generally have access to healthy food.";
+                    } else if (nutrition > 50) {
+                        analysis += "Nutrition levels are moderate, improvement is needed in diet quality.";
+                    } else {
+                        analysis += "Nutrition levels are poor, indicating malnutrition risks.";
+                    }
+
+                    analysis += `<br><br><b>Impact of Factors:</b><br>
+                        - Higher thinness values reduce life expectancy.<br>
+                        - Higher infant and child deaths indicate weaker healthcare systems.<br>
+                        - Better BMI improves overall population health.<br>`;
+
+                    report.innerHTML = `
+                        <h2 class="font-bold text-lg mb-2">Health Report for ${country}</h2>
+                        <p><b>Estimated Life Expectancy:</b> ${lifeExp.toFixed(2)} years</p>
+                        <p><b>Nutrition Score:</b> ${nutrition.toFixed(2)}</p>
+                        <p class="mt-2">${analysis}</p>
+`;
+
+                    report.classList.remove('hidden');
+                    drawChart(country, thinness, thinness59, bmi, infantdeaths, underfivedeaths, message.prediction['Life expectancy'], message.prediction['nutrition']);
+                } else {
+                    result.innerText = "Error calculating life expectancy.";
+                    result.style.color = "red";
+                }
+            }
+            catch (error) {
+                result.innerText = "Error connecting to server.";
+                result.style.color = "red";
+            }
+        }
+
+    </script>
+</body>
+
+</html>
