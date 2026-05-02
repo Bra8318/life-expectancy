@@ -1,0 +1,1171 @@
+# Modified Immunization Analytics Page
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>Immunization Life Analytics</title>
+
+    <!-- TAILWIND -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CHART JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- JSPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at top left,
+                    rgba(59, 130, 246, 0.14),
+                    transparent 25%),
+
+                radial-gradient(circle at bottom right,
+                    rgba(16, 185, 129, 0.14),
+                    transparent 25%),
+
+                linear-gradient(to bottom right,
+                    #eff6ff,
+                    #ffffff,
+                    #ecfdf5);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .card-hover {
+            transition: all 0.35s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.08),
+                0 0 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right,
+                    #2563eb,
+                    #10b981);
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.9s ease;
+        }
+
+        @keyframes fadeIn {
+
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0%;
+            height: 2px;
+            background: #2563eb;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.12);
+        }
+    </style>
+
+</head>
+
+<body class="min-h-screen relative">
+
+    <!-- BACKGROUND -->
+    <div
+        class="absolute top-0 left-0 w-72 h-72 bg-blue-300 rounded-full blur-3xl opacity-20 floating">
+    </div>
+
+    <div
+        class="absolute bottom-0 right-0 w-72 h-72 bg-green-300 rounded-full blur-3xl opacity-20 floating">
+    </div>
+
+    <!-- NAVBAR -->
+    <nav
+        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass px-8 py-4 rounded-full shadow-2xl w-[95%] max-w-6xl">
+
+        <div class="flex items-center justify-between">
+
+            <!-- LOGO -->
+            <div class="flex items-center gap-4">
+
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white text-2xl shadow-xl">
+
+                    💉
+
+                </div>
+
+                <div>
+
+                    <h1 class="font-extrabold text-xl gradient-text">
+                        Immunization AI
+                    </h1>
+
+                    <p class="text-xs text-gray-500">
+                        Vaccination Analytics Dashboard
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- NAV LINKS -->
+            <div class="hidden md:flex gap-8 text-gray-700 font-semibold items-center">
+
+                <a href="index.html"
+                    class="nav-link hover:text-blue-500 transition">
+                    Home
+                </a>
+
+                <a href="#topSection"
+                    class="nav-link hover:text-blue-500 transition">
+                    Predictor
+                </a>
+
+                <a href="#graphsContainer"
+                    class="nav-link hover:text-blue-500 transition">
+                    Analytics
+                </a>
+
+                <a href="#insightsSection"
+                    class="nav-link hover:text-blue-500 transition">
+                    Insights
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-4 pt-36 pb-16">
+
+        <!-- HERO -->
+        <div class="text-center animate-fade">
+
+            <div class="inline-flex items-center gap-2 bg-white/70 border border-blue-100 px-5 py-2 rounded-full shadow-lg mb-8">
+                <span class="text-blue-600 font-semibold">
+                    AI Healthcare Intelligence
+                </span>
+            </div>
+
+            <h1
+                class="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight text-gray-800">
+
+                AI Powered
+
+                <span class="gradient-text">
+                    Immunization
+                </span>
+
+                <br>
+
+                & Travel Safety Analytics
+
+            </h1>
+
+            <p
+                class="text-gray-600 text-lg mt-8 max-w-3xl mx-auto leading-relaxed">
+
+                Analyze vaccination indicators and predict
+                life expectancy along with immunization
+                safety insights for international travelers.
+
+            </p>
+
+        </div>
+
+        <!-- MAIN CONTAINER -->
+        <div
+            class="glass rounded-[40px] p-6 md:p-10 shadow-2xl mt-16 animate-fade">
+
+            <!-- TOP -->
+            <div id="topSection">
+
+                <!-- TOGGLE -->
+                <div class="mb-8">
+
+                    <button onclick="toggleInstructions()"
+                        class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-7 py-3 rounded-2xl text-lg font-bold shadow-xl hover:scale-105 transition-all">
+
+                        Vaccination Instructions
+
+                    </button>
+
+                    <div id="instructions"
+                        class="hidden mt-6 glass rounded-3xl p-7 text-gray-700">
+
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                            <div>
+
+                                <h3
+                                    class="font-bold text-xl text-blue-500">
+                                    Polio
+                                </h3>
+
+                                <p class="mt-2">
+                                    Vaccination coverage against polio disease.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3
+                                    class="font-bold text-xl text-blue-500">
+                                    Diphtheria
+                                </h3>
+
+                                <p class="mt-2">
+                                    Immunization rate against bacterial infection.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3
+                                    class="font-bold text-xl text-blue-500">
+                                    Hepatitis B
+                                </h3>
+
+                                <p class="mt-2">
+                                    Protection coverage against liver infection.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- FORM -->
+                <div id="formSection">
+
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        <div>
+
+                            <label
+                                class="font-bold text-lg text-gray-700">
+                                Country
+                            </label>
+
+                            <input id="country"
+                                type="text"
+                                placeholder="Enter Country Name"
+                                class="input-field w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label
+                                class="font-bold text-lg text-gray-700">
+                                Polio Vaccination Rate
+                            </label>
+
+                            <input id="polio"
+                                type="number"
+                                min="0"
+                                max="100"
+                                placeholder="Enter Polio Vaccination Rate"
+                                class="input-field w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label
+                                class="font-bold text-lg text-gray-700">
+                                Diphtheria Vaccination Rate
+                            </label>
+
+                            <input id="diphtheria"
+                                type="number"
+                                min="0"
+                                max="100"
+                                placeholder="Enter Diphtheria Vaccination Rate"
+                                class="input-field w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label
+                                class="font-bold text-lg text-gray-700">
+                                Hepatitis B Vaccination Rate
+                            </label>
+
+                            <input id="hepatitisb"
+                                type="number"
+                                min="0"
+                                max="100"
+                                placeholder="Enter Hepatitis B Vaccination Rate"
+                                class="input-field w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                    </div>
+
+                    <button onclick="getLifeExpectancy()"
+                        id="predictBtn"
+                        class="w-full mt-10 bg-gradient-to-r from-blue-500 to-green-500 text-white py-5 rounded-3xl text-2xl font-bold shadow-2xl hover:scale-[1.01] transition-all">
+
+                        Predict Immunization Impact
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RESULT -->
+            <div id="resultCard"
+                class="hidden mt-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-[40px] p-10 text-white shadow-2xl animate-fade">
+
+                <div
+                    class="flex flex-col lg:flex-row items-center justify-between gap-10">
+
+                    <div>
+
+                        <div
+                            class="flex items-center gap-5">
+
+                            <div
+                                class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-5xl">
+
+                                💉
+
+                            </div>
+
+                            <div>
+
+                                <h2 id="countryName"
+                                    class="text-4xl font-extrabold">
+                                </h2>
+
+                                <p
+                                    class="text-white/80 text-lg mt-2">
+                                    Immunization Analysis
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mt-10">
+
+                            <p class="text-lg opacity-90">
+                                Predicted Life Expectancy
+                            </p>
+
+                            <h1 id="result"
+                                class="text-7xl font-extrabold mt-2">
+                            </h1>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="w-full lg:w-[420px]">
+
+                        <div
+                            class="bg-white/10 backdrop-blur-xl rounded-3xl p-7 border border-white/20">
+
+                            <div
+                                class="flex justify-between mb-4">
+
+                                <span
+                                    class="font-semibold text-lg">
+                                    Vaccination Safety Score
+                                </span>
+
+                                <span id="scoreText"
+                                    class="font-bold">
+                                </span>
+
+                            </div>
+
+                            <div
+                                class="w-full h-6 bg-white/20 rounded-full overflow-hidden">
+
+                                <div id="riskBar"
+                                    class="h-6 rounded-full transition-all duration-1000">
+                                </div>
+
+                            </div>
+
+                            <div id="travelBadge"
+                                class="mt-7 text-center bg-white text-blue-500 font-bold py-3 rounded-2xl text-lg shadow-xl">
+                            </div>
+
+                            <!-- DOWNLOAD BUTTON -->
+                            <button onclick="downloadReport()"
+                                class="w-full mt-6 bg-white text-blue-600 py-4 rounded-2xl text-lg font-bold hover:scale-105 transition-all shadow-xl">
+
+                                Download Full Report
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STATS -->
+            <div id="statsCards"
+                class="hidden grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-12">
+            </div>
+
+            <!-- MAIN GRID -->
+            <div
+                class="mt-14 grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
+
+                <!-- LEFT -->
+                <div id="graphsContainer"
+                    class="hidden space-y-8">
+
+                    <div
+                        class="bg-white rounded-[32px] p-6 shadow-xl card-hover">
+
+                        <h2
+                            class="text-2xl font-bold text-gray-800 mb-5">
+
+                            Immunization Analysis
+
+                        </h2>
+
+                        <canvas id="myChart"></canvas>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div id="insightsSection"
+                    class="hidden sticky top-28">
+
+                    <div
+                        class="bg-white rounded-[32px] shadow-2xl p-8">
+
+                        <h2
+                            class="text-4xl font-extrabold text-gray-800">
+
+                            Travel Vaccination Insights
+
+                        </h2>
+
+                        <p
+                            class="text-gray-500 mt-3 text-lg">
+
+                            AI generated travel immunization guidance
+
+                        </p>
+
+                        <div id="insights"
+                            class="mt-8 space-y-6 max-h-[1000px] overflow-y-auto custom-scroll pr-2">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let finalPrediction = 0;
+        let vaccinationScore = 0;
+
+        function toggleInstructions() {
+
+            document.getElementById("instructions")
+                .classList.toggle("hidden");
+        }
+
+        function title(str) {
+
+            return str.charAt(0).toUpperCase() +
+                str.slice(1).toLowerCase();
+        }
+
+        function updateRiskBar(score) {
+
+            const bar =
+                document.getElementById("riskBar");
+
+            const text =
+                document.getElementById("scoreText");
+
+            bar.style.width = `${score}%`;
+
+            text.innerText =
+                `${score.toFixed(0)} / 100`;
+
+            if (score < 50) {
+
+                bar.className =
+                    "h-6 rounded-full bg-red-500 transition-all duration-1000";
+            }
+
+            else if (score < 75) {
+
+                bar.className =
+                    "h-6 rounded-full bg-yellow-400 transition-all duration-1000";
+            }
+
+            else {
+
+                bar.className =
+                    "h-6 rounded-full bg-green-500 transition-all duration-1000";
+            }
+        }
+
+        function updateBadge(score) {
+
+            const badge =
+                document.getElementById("travelBadge");
+
+            if (score >= 85) {
+
+                badge.innerText =
+                    "Highly Immunized Travel Region";
+            }
+
+            else if (score >= 65) {
+
+                badge.innerText =
+                    "Moderate Immunization Protection";
+            }
+
+            else {
+
+                badge.innerText =
+                    "Vaccination Precautions Required";
+            }
+        }
+
+        function createStatCards(
+            expectancy,
+            vaccination,
+            polio,
+            hepatitis
+        ) {
+
+            const container =
+                document.getElementById("statsCards");
+
+            container.innerHTML = "";
+
+            const cards = [
+
+                {
+                    icon: "🌍",
+                    title: "Life Expectancy",
+                    value: expectancy.toFixed(2)
+                },
+
+                {
+                    icon: "💉",
+                    title: "Vaccination Coverage",
+                    value: vaccination.toFixed(2)
+                },
+
+                {
+                    icon: "🛡️",
+                    title: "Polio Protection",
+                    value: polio + "%"
+                },
+
+                {
+                    icon: "🧬",
+                    title: "Hepatitis Protection",
+                    value: hepatitis + "%"
+                }
+
+            ];
+
+            cards.forEach(card => {
+
+                container.innerHTML += `
+
+                    <div class="bg-white rounded-[28px] p-7 shadow-xl card-hover">
+
+                        <div class="flex items-center justify-between">
+
+                            <div>
+
+                                <p class="text-gray-500 text-lg">
+                                    ${card.title}
+                                </p>
+
+                                <h2 class="text-4xl font-extrabold mt-4 text-gray-800">
+                                    ${card.value}
+                                </h2>
+
+                            </div>
+
+                            <div class="text-5xl">
+                                ${card.icon}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+            });
+
+            container.classList.remove("hidden");
+        }
+
+        function generateInsights(
+            polio,
+            diphtheria,
+            hepatitis,
+            vaccination
+        ) {
+
+            const container =
+                document.getElementById("insights");
+
+            container.innerHTML = "";
+
+            let insights = [
+
+                {
+                    icon: "💉",
+                    title: "Vaccination Documents",
+                    text: "Carry your vaccination certificates and digital health documents during travel."
+                },
+
+                {
+                    icon: "🏥",
+                    title: "Healthcare Access",
+                    text: "Research emergency hospitals and local healthcare facilities before arrival."
+                },
+
+                {
+                    icon: "🧴",
+                    title: "Travel Hygiene",
+                    text: "Maintain hygiene in airports, crowded places, and public transportation."
+                },
+
+                {
+                    icon: "🌍",
+                    title: "Travel Insurance",
+                    text: "Choose travel insurance that covers vaccination-related emergencies."
+                }
+
+            ];
+
+            if (polio < 70) {
+
+                insights.push({
+
+                    icon: "⚠️",
+
+                    title: "Polio Risk",
+
+                    text: "Lower polio vaccination rates may increase health risks in crowded regions."
+
+                });
+            }
+
+            if (diphtheria < 70) {
+
+                insights.push({
+
+                    icon: "🦠",
+
+                    title: "Diphtheria Exposure",
+
+                    text: "Review booster vaccinations before international travel."
+
+                });
+            }
+
+            if (hepatitis < 70) {
+
+                insights.push({
+
+                    icon: "🧬",
+
+                    title: "Hepatitis Protection",
+
+                    text: "Avoid unsafe food, water, and unverified medical procedures during travel."
+
+                });
+            }
+
+            if (vaccination > 85) {
+
+                insights.push({
+
+                    icon: "✅",
+
+                    title: "Safe Travel Conditions",
+
+                    text: "Strong immunization indicators suggest a safer healthcare environment for travelers."
+
+                });
+            }
+
+            insights.forEach(item => {
+
+                container.innerHTML += `
+
+                    <div class="glass rounded-[28px] p-7 shadow-lg card-hover">
+
+                        <div class="flex gap-5">
+
+                            <div class="text-5xl">
+                                ${item.icon}
+                            </div>
+
+                            <div>
+
+                                <h3 class="text-2xl font-bold text-gray-800">
+                                    ${item.title}
+                                </h3>
+
+                                <p class="text-gray-600 mt-3 leading-relaxed text-lg">
+                                    ${item.text}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+            });
+
+            document.getElementById("insightsSection")
+                .classList.remove("hidden");
+        }
+
+        let myChart = null;
+
+        function drawChart(
+            polio,
+            diphtheria,
+            hepatitis,
+            expectancy,
+            vaccination
+        ) {
+
+            const ctx =
+                document.getElementById('myChart')
+                    .getContext('2d');
+
+            if (myChart) {
+
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+
+                type: 'radar',
+
+                data: {
+
+                    labels: [
+                        'Polio',
+                        'Diphtheria',
+                        'Hepatitis B',
+                        'Life Expectancy',
+                        'Vaccination Coverage'
+                    ],
+
+                    datasets: [
+
+                        {
+                            label: 'Vaccination Inputs',
+
+                            data: [
+                                polio,
+                                diphtheria,
+                                hepatitis,
+                                0,
+                                0
+                            ],
+
+                            backgroundColor:
+                                'rgba(59,130,246,0.2)',
+
+                            borderColor:
+                                '#2563eb',
+
+                            borderWidth: 3,
+
+                            pointBackgroundColor:
+                                '#2563eb',
+
+                            pointRadius: 5
+                        },
+
+                        {
+                            label: 'Prediction Outputs',
+
+                            data: [
+                                0,
+                                0,
+                                0,
+                                expectancy,
+                                vaccination
+                            ],
+
+                            backgroundColor:
+                                'rgba(16,185,129,0.15)',
+
+                            borderColor:
+                                '#10b981',
+
+                            borderWidth: 3,
+
+                            pointBackgroundColor:
+                                '#10b981',
+
+                            pointRadius: 5
+                        }
+
+                    ]
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    scales: {
+
+                        r: {
+
+                            suggestedMin: 0,
+
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+
+            document.getElementById("graphsContainer")
+                .classList.remove("hidden");
+        }
+
+        async function getLifeExpectancy() {
+
+            const country =
+                document.getElementById('country').value;
+
+            const polio =
+                parseFloat(document.getElementById('polio').value);
+
+            const diphtheria =
+                parseFloat(document.getElementById('diphtheria').value);
+
+            const hepatitis =
+                parseFloat(document.getElementById('hepatitisb').value);
+
+            if (
+                !country ||
+                isNaN(polio) ||
+                isNaN(diphtheria) ||
+                isNaN(hepatitis)
+            ) {
+
+                alert("Please fill all fields correctly.");
+
+                return;
+            }
+
+            try {
+
+                document.getElementById("predictBtn")
+                    .innerText = "Analyzing...";
+
+                const response =
+                    await fetch(
+                        'http://127.0.0.1:8000/immunity',
+                        {
+
+                            method: 'POST',
+
+                            headers: {
+                                'Content-Type':
+                                    'application/json'
+                            },
+
+                            body: JSON.stringify({
+
+                                Country: country,
+
+                                Polio: parseInt(polio),
+
+                                Diphtheria: parseInt(diphtheria),
+
+                                HepatitisB: parseInt(hepatitis)
+
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                const message =
+                    data.prediction;
+
+                if (data.status === 'success') {
+
+                    const expectancy =
+                        message.prediction['Life expectancy'];
+
+                    const vaccination =
+                        message.prediction['vaccination'];
+
+                    finalPrediction = expectancy;
+                    vaccinationScore = vaccination;
+
+                    document.getElementById("topSection")
+                        .classList.add("hidden");
+
+                    document.getElementById("resultCard")
+                        .classList.remove("hidden");
+
+                    document.getElementById("countryName")
+                        .innerText = title(country);
+
+                    document.getElementById("result")
+                        .innerText =
+                        expectancy.toFixed(2);
+
+                    updateRiskBar(vaccination);
+
+                    updateBadge(vaccination);
+
+                    createStatCards(
+                        expectancy,
+                        vaccination,
+                        polio,
+                        hepatitis
+                    );
+
+                    drawChart(
+                        polio,
+                        diphtheria,
+                        hepatitis,
+                        expectancy,
+                        vaccination
+                    );
+
+                    generateInsights(
+                        polio,
+                        diphtheria,
+                        hepatitis,
+                        vaccination
+                    );
+                }
+
+                else {
+
+                    alert(
+                        "Error calculating life expectancy."
+                    );
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Error connecting to server."
+                );
+            }
+
+            finally {
+
+                document.getElementById("predictBtn")
+                    .innerText = "Predict Immunization Impact";
+            }
+        }
+
+        async function downloadReport() {
+
+            const { jsPDF } = window.jspdf;
+
+            const doc = new jsPDF();
+
+            const country =
+                document.getElementById("country").value;
+
+            const polio =
+                document.getElementById("polio").value;
+
+            const diphtheria =
+                document.getElementById("diphtheria").value;
+
+            const hepatitis =
+                document.getElementById("hepatitisb").value;
+
+            doc.setFontSize(24);
+
+            doc.text("Immunization AI Report", 20, 25);
+
+            doc.setFontSize(14);
+
+            doc.text(`Country: ${country}`, 20, 45);
+
+            doc.text(`Predicted Life Expectancy: ${finalPrediction.toFixed(2)}`, 20, 60);
+
+            doc.text(`Vaccination Safety Score: ${vaccinationScore.toFixed(2)}`, 20, 75);
+
+            doc.text(`Polio Vaccination: ${polio}%`, 20, 95);
+
+            doc.text(`Diphtheria Vaccination: ${diphtheria}%`, 20, 110);
+
+            doc.text(`Hepatitis B Vaccination: ${hepatitis}%`, 20, 125);
+
+            doc.setFontSize(18);
+
+            doc.text("Travel Suggestions", 20, 150);
+
+            doc.setFontSize(13);
+
+            let y = 165;
+
+            const suggestions = [
+
+                "Carry international vaccination certificates.",
+
+                "Maintain proper travel hygiene practices.",
+
+                "Use travel insurance with healthcare coverage.",
+
+                "Research emergency healthcare facilities before traveling.",
+
+                "Avoid unsafe food and water sources."
+
+            ];
+
+            suggestions.forEach(item => {
+
+                doc.text(`• ${item}`, 25, y);
+
+                y += 12;
+            });
+
+            doc.save(`${country}_Immunization_Report.pdf`);
+        }
+
+    </script>
+
+</body>
+
+</html>

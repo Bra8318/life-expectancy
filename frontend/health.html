@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Health Life Expectancy Predictor</title>
+
+    <!-- TAILWIND -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CHART -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- JSPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at bottom right, rgba(6, 182, 212, 0.18), transparent 25%),
+                linear-gradient(to bottom right, #eff6ff, #ffffff, #ecfeff);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .card-hover {
+            transition: all 0.35s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.1),
+                0 0 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #2563eb, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .animate-fade {
+            animation: fadeIn 0.9s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+        }
+
+        .input-style {
+            width: 100%;
+            margin-top: 12px;
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.7);
+            outline: none;
+            font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .input-style:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen relative text-gray-800">
+
+    <!-- BACKGROUND BLOBS -->
+    <div class="absolute top-0 left-0 w-72 h-72 bg-blue-300 rounded-full blur-3xl opacity-20 floating"></div>
+    <div class="absolute bottom-0 right-0 w-72 h-72 bg-cyan-300 rounded-full blur-3xl opacity-20 floating"></div>
+
+    <!-- NAVBAR -->
+    <nav
+        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass px-8 py-4 rounded-full shadow-2xl w-[95%] max-w-6xl">
+
+        <div class="flex items-center justify-between">
+
+            <!-- LOGO -->
+            <div class="flex items-center gap-4">
+
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl shadow-xl">
+                    🩺
+                </div>
+
+                <div>
+                    <h1 class="font-extrabold text-xl gradient-text">
+                        Travel Health AI
+                    </h1>
+
+                    <p class="text-xs text-gray-500">
+                        Health Life Analytics
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- MENU -->
+            <div class="hidden md:flex items-center gap-8 font-medium text-gray-700">
+
+                <a href="index.html" class="hover:text-blue-600 transition">
+                    Home
+                </a>
+
+                <a href="#heroSection" class="hover:text-blue-600 transition">
+                    Overview
+                </a>
+
+                <a href="#graphsContainer" class="hover:text-blue-600 transition">
+                    Analytics
+                </a>
+
+                <a href="#insightsSection" class="hover:text-blue-600 transition">
+                    Suggestions
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-4 pt-40 pb-20">
+
+        <!-- HERO -->
+        <section id="heroSection">
+
+            <div class="text-center animate-fade">
+
+                <div
+                    class="inline-flex items-center gap-3 bg-white/70 border border-blue-100 px-5 py-3 rounded-full shadow-lg mb-8">
+
+                    <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+
+                    <p class="font-semibold text-gray-700">
+                        AI Powered Healthcare Travel Intelligence
+                    </p>
+                </div>
+
+                <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold leading-tight">
+
+                    AI Powered
+                    <span class="gradient-text">
+                        Health Risk
+                    </span>
+
+                    <br>
+
+                    Intelligence Platform
+
+                </h1>
+
+                <p class="text-gray-600 text-xl mt-8 max-w-3xl mx-auto leading-relaxed">
+                    Analyze healthcare conditions, disease statistics, mortality risks,
+                    and wellness indicators before traveling to any country.
+                </p>
+
+            </div>
+
+        </section>
+
+        <!-- MAIN CONTAINER -->
+        <div class="glass rounded-[40px] p-6 md:p-10 shadow-2xl mt-16 animate-fade">
+
+            <!-- TOP SECTION -->
+            <div id="topSection">
+
+                <!-- INFO CARDS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+                    <div class="bg-white rounded-[28px] p-6 shadow-lg card-hover">
+                        <div class="text-5xl">🏥</div>
+
+                        <h3 class="text-2xl font-bold mt-5">
+                            Healthcare
+                        </h3>
+
+                        <p class="text-gray-600 mt-3">
+                            Analyze healthcare quality and mortality indicators.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-[28px] p-6 shadow-lg card-hover">
+                        <div class="text-5xl">💉</div>
+
+                        <h3 class="text-2xl font-bold mt-5">
+                            Disease Risk
+                        </h3>
+
+                        <p class="text-gray-600 mt-3">
+                            Evaluate disease burden and infection statistics.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-[28px] p-6 shadow-lg card-hover">
+                        <div class="text-5xl">🌍</div>
+
+                        <h3 class="text-2xl font-bold mt-5">
+                            Travel Safety
+                        </h3>
+
+                        <p class="text-gray-600 mt-3">
+                            Receive AI powered travel wellness recommendations.
+                        </p>
+                    </div>
+
+                </div>
+
+                <!-- FORM -->
+                <div class="bg-white rounded-[35px] p-8 shadow-xl">
+
+                    <div class="flex items-center justify-between mb-10 flex-wrap gap-5">
+
+                        <div>
+                            <h2 class="text-4xl font-extrabold text-gray-800">
+                                Health Analytics Form
+                            </h2>
+
+                            <p class="text-gray-500 mt-2 text-lg">
+                                Enter country health indicators for prediction
+                            </p>
+                        </div>
+
+                        <button onclick="toggleInstructions()"
+                            class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-7 py-4 rounded-2xl text-lg font-bold shadow-xl hover:scale-105 transition-all">
+                            Form Instructions
+                        </button>
+
+                    </div>
+
+                    <!-- INSTRUCTIONS -->
+                    <div id="instructions" class="hidden mb-10 glass rounded-3xl p-7 text-gray-700">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <div>
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    Adult Mortality
+                                </h3>
+
+                                <p class="mt-2">
+                                    Probability of dying between age 15 and 60.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    Infant Deaths
+                                </h3>
+
+                                <p class="mt-2">
+                                    Number of infant deaths per 1000 births.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    BMI
+                                </h3>
+
+                                <p class="mt-2">
+                                    Body Mass Index used for health evaluation.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    HIV/AIDS
+                                </h3>
+
+                                <p class="mt-2">
+                                    HIV/AIDS related health statistics.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- INPUTS -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        <div>
+                            <label class="font-bold text-lg">
+                                Country
+                            </label>
+
+                            <input id="country" type="text" placeholder="Enter Country Name"
+                                class="input-style">
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-lg">
+                                Adult Mortality
+                            </label>
+
+                            <input id="mortality" type="number" placeholder="Enter Adult Mortality"
+                                class="input-style">
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-lg">
+                                Infant Deaths
+                            </label>
+
+                            <input id="infant" type="number" placeholder="Enter Infant Deaths"
+                                class="input-style">
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-lg">
+                                BMI
+                            </label>
+
+                            <input id="bmi" type="number" placeholder="Enter BMI"
+                                class="input-style">
+
+                            <button onclick="calculateBmi()"
+                                class="mt-4 text-blue-600 font-semibold hover:underline">
+                                Calculate Your BMI
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-lg">
+                                HIV/AIDS
+                            </label>
+
+                            <input id="hiv" type="number" placeholder="Enter HIV/AIDS"
+                                class="input-style">
+                        </div>
+
+                        <div>
+                            <label class="font-bold text-lg">
+                                Measles
+                            </label>
+
+                            <input id="measles" type="number" placeholder="Enter Measles Cases"
+                                class="input-style">
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="font-bold text-lg">
+                                Under-Five Deaths
+                            </label>
+
+                            <input id="underfive" type="number"
+                                placeholder="Enter Under-Five Deaths"
+                                class="input-style">
+                        </div>
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button onclick="getLifeExpectancy()"
+                        class="w-full mt-10 bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-5 rounded-3xl text-2xl font-bold shadow-2xl hover:scale-[1.01] transition-all">
+                        Predict Life Expectancy
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RESULT CARD -->
+            <div id="resultCard"
+                class="hidden mt-12 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-[40px] p-10 text-white shadow-2xl animate-fade">
+
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-10">
+
+                    <div>
+
+                        <div class="flex items-center gap-5">
+
+                            <div
+                                class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-5xl">
+                                🩺
+                            </div>
+
+                            <div>
+                                <h2 id="countryName" class="text-4xl font-extrabold"></h2>
+
+                                <p class="text-white/80 text-lg mt-2">
+                                    AI Health Analysis
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-10">
+                            <p class="text-lg opacity-90">
+                                Predicted Life Expectancy
+                            </p>
+
+                            <h1 id="result" class="text-7xl font-extrabold mt-2"></h1>
+                        </div>
+
+                    </div>
+
+                    <div class="w-full lg:w-[420px]">
+
+                        <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-7 border border-white/20">
+
+                            <div class="flex justify-between mb-4">
+                                <span class="font-semibold text-lg">
+                                    Health Stability Score
+                                </span>
+
+                                <span id="scoreText" class="font-bold"></span>
+                            </div>
+
+                            <div class="w-full h-6 bg-white/20 rounded-full overflow-hidden">
+                                <div id="riskBar"
+                                    class="h-6 rounded-full transition-all duration-1000">
+                                </div>
+                            </div>
+
+                            <div id="travelBadge"
+                                class="mt-7 text-center bg-white text-blue-600 font-bold py-3 rounded-2xl text-lg shadow-xl">
+                            </div>
+
+                            <button onclick="downloadReport()"
+                                class="w-full mt-6 bg-white text-blue-600 font-bold py-4 rounded-2xl hover:scale-105 transition-all shadow-lg">
+                                Download Health Report
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STATS -->
+            <div id="statsCards"
+                class="hidden grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-12">
+            </div>
+
+            <!-- ANALYTICS -->
+            <div class="mt-14 grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
+
+                <!-- CHART -->
+                <div id="graphsContainer" class="hidden space-y-8">
+
+                    <div class="bg-white rounded-[32px] p-6 shadow-xl card-hover">
+
+                        <h2 class="text-2xl font-bold text-gray-800 mb-5">
+                            Health Analysis
+                        </h2>
+
+                        <canvas id="mainChart"></canvas>
+
+                    </div>
+
+                </div>
+
+                <!-- INSIGHTS -->
+                <div id="insightsSection" class="hidden sticky top-28">
+
+                    <div class="bg-white rounded-[32px] shadow-2xl p-8">
+
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+                            Travel Insights
+                        </h2>
+
+                        <p class="text-gray-500 mt-3 text-lg">
+                            AI generated health travel recommendations
+                        </p>
+
+                        <div id="insights"
+                            class="mt-8 space-y-6 max-h-[1000px] overflow-y-auto custom-scroll pr-2">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="py-10 text-center text-gray-500 text-lg">
+        © 2026 Travel Health AI • Smart Healthcare Analytics
+    </footer>
+
+    <script>
+
+        let reportData = {};
+        let mainChart = null;
+
+        function toggleInstructions() {
+            document.getElementById("instructions").classList.toggle("hidden");
+        }
+
+        function title(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+
+        function calculateBmi() {
+
+            const weight = prompt("Enter your weight in kg:");
+            const height = prompt("Enter your height in centimeters:");
+
+            if (weight && height) {
+
+                const bmi = weight / ((height / 100) ** 2);
+
+                document.getElementById('bmi').value = bmi.toFixed(2);
+            }
+        }
+
+        function updateRiskBar(prediction) {
+
+            const bar = document.getElementById("riskBar");
+            const score = document.getElementById("scoreText");
+
+            bar.style.width = `${prediction}%`;
+
+            score.innerText = `${prediction.toFixed(0)} / 100`;
+
+            if (prediction < 55) {
+                bar.className = "h-6 rounded-full bg-red-500 transition-all duration-1000";
+            }
+
+            else if (prediction < 70) {
+                bar.className = "h-6 rounded-full bg-yellow-400 transition-all duration-1000";
+            }
+
+            else {
+                bar.className = "h-6 rounded-full bg-green-400 transition-all duration-1000";
+            }
+        }
+
+        function updateBadge(prediction) {
+
+            const badge = document.getElementById("travelBadge");
+
+            if (prediction >= 80) {
+                badge.innerText = "Excellent Health Conditions";
+            }
+
+            else if (prediction >= 70) {
+                badge.innerText = "Moderate Health Environment";
+            }
+
+            else {
+                badge.innerText = "High Healthcare Precautions";
+            }
+        }
+
+        function createStatCards(expectancy, disease, lifespan, bmi) {
+
+            const container = document.getElementById("statsCards");
+
+            container.innerHTML = "";
+
+            const cards = [
+                { icon: "🌍", title: "Life Expectancy", value: expectancy.toFixed(2) },
+                { icon: "🦠", title: "Disease Burden", value: disease.toFixed(2) },
+                { icon: "❤️", title: "Lifespan", value: lifespan.toFixed(2) },
+                { icon: "⚖️", title: "BMI", value: bmi }
+            ];
+
+            cards.forEach(card => {
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-[28px] p-7 shadow-xl card-hover">
+                        <div class="flex items-center justify-between">
+
+                            <div>
+                                <p class="text-gray-500 text-lg">
+                                    ${card.title}
+                                </p>
+
+                                <h2 class="text-4xl font-extrabold mt-4 text-gray-800">
+                                    ${card.value}
+                                </h2>
+                            </div>
+
+                            <div class="text-5xl">
+                                ${card.icon}
+                            </div>
+
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.classList.remove("hidden");
+        }
+
+        function generateInsights(prediction, hiv, measles, mortality) {
+
+            const container = document.getElementById("insights");
+
+            container.innerHTML = "";
+
+            const suggestions = [
+
+                {
+                    icon: "🏥",
+                    title: "Healthcare Preparation",
+                    text: "Research hospitals and emergency medical services before traveling."
+                },
+
+                {
+                    icon: "💊",
+                    title: "Vaccination",
+                    text: "Carry vaccination certificates and required medicines while traveling."
+                },
+
+                {
+                    icon: "🚰",
+                    title: "Safe Water",
+                    text: "Drink purified water and avoid unsafe local sources."
+                },
+
+                {
+                    icon: "🧳",
+                    title: "Travel Insurance",
+                    text: "Always carry international health insurance during travel."
+                }
+            ];
+
+            if (hiv > 5) {
+
+                suggestions.push({
+                    icon: "⚠️",
+                    title: "HIV/AIDS Risk",
+                    text: "Higher HIV/AIDS statistics indicate extra healthcare precautions are needed."
+                });
+            }
+
+            if (mortality > 300) {
+
+                suggestions.push({
+                    icon: "🚨",
+                    title: "Healthcare Stability",
+                    text: "Higher mortality rates may indicate weaker healthcare systems."
+                });
+            }
+
+            suggestions.forEach(item => {
+
+                container.innerHTML += `
+                    <div class="glass rounded-[28px] p-7 shadow-lg card-hover">
+
+                        <div class="flex gap-5">
+
+                            <div class="text-5xl">
+                                ${item.icon}
+                            </div>
+
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">
+                                    ${item.title}
+                                </h3>
+
+                                <p class="text-gray-600 mt-3 leading-relaxed text-lg">
+                                    ${item.text}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            document.getElementById("insightsSection").classList.remove("hidden");
+        }
+
+        function createMainChart(country, mortality, infant, bmi, hiv, measles, underfive) {
+
+            const ctx = document.getElementById('mainChart').getContext('2d');
+
+            if (mainChart) {
+                mainChart.destroy();
+            }
+
+            mainChart = new Chart(ctx, {
+
+                type: 'radar',
+
+                data: {
+
+                    labels: [
+                        'Adult Mortality',
+                        'Infant Deaths',
+                        'BMI',
+                        'HIV/AIDS',
+                        'Measles',
+                        'Under-Five Deaths'
+                    ],
+
+                    datasets: [{
+
+                        label: title(country),
+
+                        data: [
+                            mortality,
+                            infant,
+                            bmi,
+                            hiv,
+                            measles,
+                            underfive
+                        ],
+
+                        backgroundColor: 'rgba(59,130,246,0.2)',
+                        borderColor: '#2563eb',
+                        borderWidth: 3,
+                        pointRadius: 5
+
+                    }]
+                }
+            });
+
+            document.getElementById("graphsContainer").classList.remove("hidden");
+        }
+
+        async function getLifeExpectancy() {
+
+            const country = document.getElementById('country').value;
+            const mortality = parseFloat(document.getElementById('mortality').value);
+            const infant = parseFloat(document.getElementById('infant').value);
+            const bmi = parseFloat(document.getElementById('bmi').value);
+            const hiv = parseFloat(document.getElementById('hiv').value);
+            const measles = parseFloat(document.getElementById('measles').value);
+            const underfive = parseFloat(document.getElementById('underfive').value);
+
+            if (
+                !country ||
+                isNaN(mortality) ||
+                isNaN(infant) ||
+                isNaN(bmi) ||
+                isNaN(hiv) ||
+                isNaN(measles) ||
+                isNaN(underfive)
+            ) {
+                alert("Please fill all fields properly.");
+                return;
+            }
+
+            try {
+
+                document.getElementById("topSection").classList.add("hidden");
+
+                document.getElementById("resultCard").classList.remove("hidden");
+
+                document.getElementById("result").innerHTML = `
+                    <div class="flex justify-center">
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-white"></div>
+                    </div>
+                `;
+
+                const response = await fetch('http://127.0.0.1:8000/health', {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify({
+
+                        Country: country,
+                        Adult_Mortality: mortality,
+                        'infant deaths': infant,
+                        BMI: bmi,
+                        'HIV/AIDS': hiv,
+                        Measles: measles,
+                        'under-five deaths': underfive
+
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+
+                    const expectancy =
+                        data.prediction.prediction['Life expectancy'];
+
+                    const disease =
+                        data.prediction.prediction['disease burden'];
+
+                    const lifespan =
+                        data.prediction.prediction['lifespan'];
+
+                    reportData = {
+                        country,
+                        expectancy,
+                        disease,
+                        lifespan,
+                        bmi,
+                        hiv,
+                        mortality,
+                        measles
+                    };
+
+                    document.getElementById("countryName").innerText =
+                        title(country);
+
+                    document.getElementById("result").innerText =
+                        expectancy.toFixed(2);
+
+                    updateRiskBar(expectancy);
+
+                    updateBadge(expectancy);
+
+                    createStatCards(
+                        expectancy,
+                        disease,
+                        lifespan,
+                        bmi
+                    );
+
+                    createMainChart(
+                        country,
+                        mortality,
+                        infant,
+                        bmi,
+                        hiv,
+                        measles,
+                        underfive
+                    );
+
+                    generateInsights(
+                        expectancy,
+                        hiv,
+                        measles,
+                        mortality
+                    );
+                }
+
+                else {
+                    alert('Error calculating life expectancy.');
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert('Error connecting to server.');
+            }
+        }
+
+        function downloadReport() {
+
+            const { jsPDF } = window.jspdf;
+
+            const doc = new jsPDF();
+
+            doc.setFontSize(22);
+
+            doc.text("Health Life Expectancy Report", 20, 20);
+
+            doc.setFontSize(14);
+
+            doc.text(`Country: ${reportData.country}`, 20, 40);
+
+            doc.text(`Life Expectancy: ${reportData.expectancy.toFixed(2)} Years`, 20, 50);
+
+            doc.text(`Disease Burden: ${reportData.disease.toFixed(2)}`, 20, 60);
+
+            doc.text(`Lifespan Score: ${reportData.lifespan.toFixed(2)}`, 20, 70);
+
+            doc.text(`BMI: ${reportData.bmi}`, 20, 80);
+
+            doc.setFontSize(16);
+
+            doc.text("Travel Recommendations", 20, 100);
+
+            doc.setFontSize(12);
+
+            doc.text("• Carry medical insurance during travel.", 20, 115);
+
+            doc.text("• Stay updated with vaccinations.", 20, 125);
+
+            doc.text("• Drink safe and purified water.", 20, 135);
+
+            doc.text("• Research healthcare facilities before travel.", 20, 145);
+
+            doc.text("• Carry emergency medicines and documents.", 20, 155);
+
+            doc.save(`${reportData.country}_Health_Report.pdf`);
+        }
+
+    </script>
+
+</body>
+
+</html>

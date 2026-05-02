@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Nutrition Life Analytics</title>
+
+    <!-- TAILWIND -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CHART JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+
+            background:
+                radial-gradient(circle at top left,
+                    rgba(59, 130, 246, 0.15),
+                    transparent 25%),
+
+                radial-gradient(circle at bottom right,
+                    rgba(16, 185, 129, 0.15),
+                    transparent 25%),
+
+                linear-gradient(to bottom right,
+                    #eff6ff,
+                    #ffffff,
+                    #ecfdf5);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right,
+                    #2563eb,
+                    #10b981);
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-hover {
+            transition: all 0.35s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 25px 50px rgba(0, 0, 0, 0.08),
+                0 0 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .fade {
+            animation: fade 0.9s ease;
+        }
+
+        @keyframes fade {
+
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0px);
+            }
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 20px;
+        }
+
+        .nav-link {
+            position: relative;
+            transition: 0.3s ease;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            background: #2563eb;
+            left: 0;
+            bottom: -6px;
+            transition: 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: rgba(59, 130, 246, 0.12);
+            filter: blur(120px);
+            border-radius: 50%;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: -1;
+        }
+
+        .input-focus:focus {
+            transform: scale(1.01);
+            transition: 0.3s ease;
+        }
+    </style>
+
+</head>
+
+<body class="min-h-screen relative">
+
+    <!-- BACKGROUND -->
+    <div class="absolute top-0 left-0 w-72 h-72 bg-blue-300 rounded-full blur-3xl opacity-20 floating">
+    </div>
+
+    <div class="absolute bottom-0 right-0 w-72 h-72 bg-green-300 rounded-full blur-3xl opacity-20 floating">
+    </div>
+
+    <div class="hero-glow"></div>
+
+    <!-- NAVBAR -->
+    <nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass px-8 py-4 rounded-full shadow-2xl w-[95%] max-w-6xl">
+
+        <div class="flex items-center justify-between">
+
+            <div class="flex items-center gap-4">
+
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-green-500 flex items-center justify-center text-white text-2xl shadow-xl">
+
+                    🍎
+
+                </div>
+
+                <div>
+
+                    <h1 class="font-extrabold text-xl gradient-text">
+                        Nutrition AI
+                    </h1>
+
+                    <p class="text-xs text-gray-500">
+                        Health & Nutrition Analytics
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="hidden md:flex gap-8 text-gray-700 font-medium items-center">
+
+                <a href="index.html" class="nav-link hover:text-blue-500 transition">
+                    Home
+                </a>
+
+                <a href="#topSection" class="nav-link hover:text-blue-500 transition">
+                    Nutrition
+                </a>
+
+                <a href="#graphsContainer" class="nav-link hover:text-blue-500 transition">
+                    Insights
+                </a>
+
+                <a href="#insightsSection" class="nav-link hover:text-blue-500 transition">
+                    Analytics
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-4 pt-36 pb-16">
+
+        <!-- HERO -->
+        <div class="text-center fade relative">
+
+            <div
+                class="inline-flex items-center gap-3 bg-white/70 border border-blue-100 px-5 py-3 rounded-full shadow-lg mb-8">
+
+                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+
+                <p class="font-semibold text-gray-700">
+                    AI Powered Global Nutrition Intelligence
+                </p>
+
+            </div>
+
+            <h1 class="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-800 leading-tight">
+
+                AI Powered
+
+                <span class="gradient-text">
+                    Nutrition
+                </span>
+
+                <br>
+
+                & Life Expectancy Analytics
+
+            </h1>
+
+            <p class="text-gray-600 text-lg mt-8 max-w-3xl mx-auto leading-relaxed">
+
+                Analyze nutrition indicators, healthcare quality,
+                mortality conditions, and population wellness
+                before planning your international journey.
+
+            </p>
+
+            <!-- HERO STATS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mt-14 max-w-5xl mx-auto">
+
+                <div class="glass rounded-3xl p-5 text-center shadow-xl card-hover">
+                    <h2 class="text-4xl font-extrabold text-blue-500">190+</h2>
+                    <p class="text-gray-600 mt-2">Countries</p>
+                </div>
+
+                <div class="glass rounded-3xl p-5 text-center shadow-xl card-hover">
+                    <h2 class="text-4xl font-extrabold text-green-500">AI</h2>
+                    <p class="text-gray-600 mt-2">Predictions</p>
+                </div>
+
+                <div class="glass rounded-3xl p-5 text-center shadow-xl card-hover">
+                    <h2 class="text-4xl font-extrabold text-blue-500">24/7</h2>
+                    <p class="text-gray-600 mt-2">Analytics</p>
+                </div>
+
+                <div class="glass rounded-3xl p-5 text-center shadow-xl card-hover">
+                    <h2 class="text-4xl font-extrabold text-green-500">Real</h2>
+                    <p class="text-gray-600 mt-2">Insights</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- MAIN CARD -->
+        <div class="glass rounded-[40px] p-6 md:p-10 shadow-2xl mt-16 fade">
+
+            <!-- TOP -->
+            <div id="topSection">
+
+                <!-- INSTRUCTIONS -->
+                <div class="mb-8">
+
+                    <button onclick="toggleInstructions()"
+                        class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-7 py-3 rounded-2xl text-lg font-bold shadow-xl hover:scale-105 transition-all">
+
+                        Nutrition Form Instructions
+
+                    </button>
+
+                    <div id="instructionContent" class="hidden mt-6 glass rounded-3xl p-7 text-gray-700">
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-500">
+                                    Thinness 1–19
+                                </h3>
+
+                                <p class="mt-2">
+                                    Percentage of underweight population aged 1–19.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-500">
+                                    Thinness 5–9
+                                </h3>
+
+                                <p class="mt-2">
+                                    Indicates child nutrition and food quality.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-500">
+                                    BMI
+                                </h3>
+
+                                <p class="mt-2">
+                                    Body Mass Index reflects overall population health.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- FORM -->
+                <div id="formSection">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Country
+                            </label>
+
+                            <input id="country" type="text" placeholder="Enter Country Name"
+                                class="input-focus w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Thinness 1–19 Years
+                            </label>
+
+                            <input id="thinness" type="number" placeholder="Enter Thinness Rate"
+                                class="input-focus w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Thinness 5–9 Years
+                            </label>
+
+                            <input id="thinness59" type="number" placeholder="Enter Thinness Rate"
+                                class="input-focus w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                BMI
+                            </label>
+
+                            <input id="bmi" type="number" placeholder="Enter BMI"
+                                class="input-focus w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Infant Deaths
+                            </label>
+
+                            <input id="infantdeaths" type="number" placeholder="Enter Infant Deaths"
+                                class="input-focus w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Under-Five Deaths
+                            </label>
+
+                            <input id="underfivedeaths" type="number" placeholder="Enter Under-Five Deaths"
+                                class="input-focus w-full mt-3 p-5 rounded-2xl border border-gray-200 bg-white/70 focus:ring-4 focus:ring-blue-200 outline-none text-lg shadow-sm">
+
+                        </div>
+
+                    </div>
+
+                    <button onclick="getLifeExpectancy()" id="calculateBtn"
+                        class="w-full mt-10 bg-gradient-to-r from-blue-500 to-green-500 text-white py-5 rounded-3xl text-2xl font-bold shadow-2xl hover:scale-[1.01] transition-all">
+
+                        Analyze Nutrition & Life Expectancy
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RESULT -->
+            <div id="resultCard"
+                class="hidden mt-12 bg-gradient-to-r from-blue-500 to-green-500 rounded-[40px] p-10 text-white shadow-2xl">
+
+                <div class="flex flex-col lg:flex-row justify-between items-center gap-10">
+
+                    <div>
+
+                        <div class="flex items-center gap-5">
+
+                            <div class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-5xl">
+
+                                🍎
+
+                            </div>
+
+                            <div>
+
+                                <h2 id="countryName" class="text-4xl font-extrabold">
+                                </h2>
+
+                                <p class="text-white/80 text-lg mt-2">
+                                    Nutrition & Wellness Analysis
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="mt-10">
+
+                            <p class="text-lg opacity-90">
+                                Predicted Life Expectancy
+                            </p>
+
+                            <h1 id="result" class="text-7xl font-extrabold mt-2">
+                            </h1>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div class="w-full lg:w-[420px]">
+
+                        <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-7 border border-white/20">
+
+                            <div class="flex justify-between mb-4">
+
+                                <span class="font-semibold text-lg">
+                                    Nutrition Score
+                                </span>
+
+                                <span id="scoreText" class="font-bold">
+                                </span>
+
+                            </div>
+
+                            <div class="w-full h-6 bg-white/20 rounded-full overflow-hidden">
+
+                                <div id="riskBar" class="h-6 rounded-full transition-all duration-1000">
+                                </div>
+
+                            </div>
+
+                            <div id="healthBadge"
+                                class="mt-7 text-center bg-white text-blue-500 font-bold py-3 rounded-2xl text-lg shadow-xl">
+
+                            </div>
+                            <button onclick="downloadReport()"
+                                class="w-full mt-6 bg-white text-green-600 font-bold py-4 rounded-2xl hover:scale-105 transition-all shadow-xl text-lg">
+
+                                📄 Download Nutrition Report
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- STATS -->
+            <div id="statsCards" class="hidden grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-12">
+            </div>
+
+            <!-- MAIN GRID -->
+            <div class="mt-14 grid grid-cols-1 xl:grid-cols-2 gap-10 items-start">
+
+                <!-- LEFT -->
+                <div id="graphsContainer" class="hidden space-y-8">
+
+                    <div class="bg-white rounded-[32px] p-6 shadow-xl card-hover">
+
+                        <h2 class="text-2xl font-bold text-gray-800 mb-5">
+
+                            Nutrition Health Analytics
+
+                        </h2>
+
+                        <canvas id="myChart"></canvas>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT -->
+                <div id="insightsSection" class="hidden sticky top-28">
+
+                    <div class="bg-white rounded-[32px] shadow-2xl p-8">
+
+                        <h2 class="text-4xl font-extrabold text-gray-800">
+
+                            AI Travel Nutrition Insights
+
+                        </h2>
+
+                        <p class="text-gray-500 mt-3 text-lg">
+
+                            Personalized travel health guidance
+
+                        </p>
+
+                        <div id="insights" class="mt-8 space-y-6 max-h-[1000px] overflow-y-auto custom-scroll pr-2">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <footer class="py-10 text-center text-gray-500 text-lg">
+        © 2026 Nutrition AI Analytics • Smart Wellness Intelligence
+    </footer>
+
+    <script>
+
+        function toggleInstructions() {
+            document.getElementById("instructionContent")
+                .classList.toggle("hidden");
+        }
+
+        function title(str) {
+            return str.charAt(0).toUpperCase() +
+                str.slice(1).toLowerCase();
+        }
+
+        function updateRiskBar(score) {
+
+            const bar = document.getElementById("riskBar");
+            const text = document.getElementById("scoreText");
+
+            const percentage = score * 100;
+
+            bar.style.width = `${percentage}%`;
+            text.innerText = `${percentage.toFixed(0)} / 100`;
+
+            if (percentage < 50) {
+                bar.className = "h-6 rounded-full bg-red-500 transition-all duration-1000";
+            }
+            else if (percentage < 75) {
+                bar.className = "h-6 rounded-full bg-yellow-400 transition-all duration-1000";
+            }
+            else {
+                bar.className = "h-6 rounded-full bg-green-500 transition-all duration-1000";
+            }
+        }
+
+        function updateBadge(score) {
+
+            const badge = document.getElementById("healthBadge");
+            const percentage = score * 100;
+
+            if (percentage >= 80) {
+                badge.innerText = "Healthy Travel Environment";
+            }
+            else if (percentage >= 60) {
+                badge.innerText = "Moderate Nutrition Conditions";
+            }
+            else {
+                badge.innerText = "Health Precautions Recommended";
+            }
+        }
+
+        function createStatCards(expectancy, nutrition, bmi, infant) {
+
+            const container = document.getElementById("statsCards");
+            container.innerHTML = "";
+
+            const cards = [
+                {
+                    icon: "🌍",
+                    title: "Life Expectancy",
+                    value: expectancy.toFixed(2)
+                },
+                {
+                    icon: "🥗",
+                    title: "Nutrition Score",
+                    value: (nutrition * 100).toFixed(1)
+                },
+                {
+                    icon: "⚖️",
+                    title: "BMI",
+                    value: bmi
+                },
+                {
+                    icon: "👶",
+                    title: "Infant Deaths",
+                    value: infant
+                }
+            ];
+
+            cards.forEach(card => {
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-[28px] p-7 shadow-xl card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-lg">
+                                    ${card.title}
+                                </p>
+                                <h2 class="text-4xl font-extrabold mt-4 text-gray-800">
+                                    ${card.value}
+                                </h2>
+                            </div>
+                            <div class="text-5xl">
+                                ${card.icon}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.classList.remove("hidden");
+        }
+
+        function generateInsights(thinness, infant, bmi, nutrition) {
+
+            const container = document.getElementById("insights");
+            container.innerHTML = "";
+
+            const insights = [
+                {
+                    icon: "🥗",
+                    title: "Food Safety",
+                    text: "Prefer hygienic restaurants and avoid unsafe drinking water while travelling."
+                },
+                {
+                    icon: "💧",
+                    title: "Stay Hydrated",
+                    text: "Carry safe bottled water and maintain hydration during long travel."
+                },
+                {
+                    icon: "🏥",
+                    title: "Healthcare Access",
+                    text: "Research nearby hospitals and emergency healthcare services."
+                }
+            ];
+
+            if (thinness > 15) {
+                insights.push({
+                    icon: "⚠️",
+                    title: "High Thinness Risk",
+                    text: "Higher thinness rates may indicate malnutrition and food insecurity."
+                });
+            }
+
+            if (infant > 30) {
+                insights.push({
+                    icon: "👶",
+                    title: "Child Healthcare Concern",
+                    text: "Higher child mortality rates may indicate weaker healthcare systems."
+                });
+            }
+
+            if (bmi < 18.5) {
+                insights.push({
+                    icon: "⚖️",
+                    title: "Low BMI Warning",
+                    text: "Low BMI suggests undernutrition risks and weaker immunity."
+                });
+            }
+
+            if (nutrition > 0.8) {
+                insights.push({
+                    icon: "✅",
+                    title: "Healthy Living Conditions",
+                    text: "Strong nutrition conditions indicate better quality of life and healthcare."
+                });
+            }
+
+            insights.forEach(item => {
+
+                container.innerHTML += `
+                    <div class="glass rounded-[28px] p-7 shadow-lg card-hover">
+                        <div class="flex gap-5">
+                            <div class="text-5xl">
+                                ${item.icon}
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">
+                                    ${item.title}
+                                </h3>
+                                <p class="text-gray-600 mt-3 leading-relaxed text-lg">
+                                    ${item.text}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById("insightsSection")
+                .classList.remove("hidden");
+        }
+
+        let myChart = null;
+
+        function downloadReport() {
+
+            const country = document.getElementById("countryName").innerText;
+            const expectancy = document.getElementById("result").innerText;
+            const score = document.getElementById("scoreText").innerText;
+            const badge = document.getElementById("healthBadge").innerText;
+
+            const report = `
+Nutrition Analytics Report
+===========================
+
+Country: ${country}
+Predicted Life Expectancy: ${expectancy}
+Nutrition Score: ${score}
+Health Status: ${badge}
+
+Generated by Nutrition AI Analytics Dashboard.
+            `;
+
+            const blob = new Blob([report], {
+                type: "text/plain"
+            });
+
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${country}_nutrition_report.txt`;
+            link.click();
+        }
+
+        function drawChart(thinness1, thinness2, bmi, infant, expectancy, nutrition) {
+
+            const ctx = document.getElementById("myChart").getContext("2d");
+
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+
+                type: "radar",
+
+                data: {
+
+                    labels: [
+                        "Thinness 1–19",
+                        "Thinness 5–9",
+                        "BMI",
+                        "Infant Deaths",
+                        "Life Expectancy",
+                        "Nutrition Score"
+                    ],
+
+                    datasets: [
+                        {
+                            label: "Input Indicators",
+                            data: [
+                                thinness1,
+                                thinness2,
+                                bmi,
+                                infant,
+                                0,
+                                0
+                            ],
+                            backgroundColor: "rgba(59,130,246,0.2)",
+                            borderColor: "#2563eb",
+                            borderWidth: 3,
+                            pointBackgroundColor: "#2563eb",
+                            pointRadius: 5
+                        },
+                        {
+                            label: "Prediction Outputs",
+                            data: [
+                                0,
+                                0,
+                                0,
+                                0,
+                                expectancy,
+                                nutrition * 100
+                            ],
+                            backgroundColor: "rgba(16,185,129,0.15)",
+                            borderColor: "#10b981",
+                            borderWidth: 3,
+                            pointBackgroundColor: "#10b981",
+                            pointRadius: 5
+                        }
+                    ]
+                }
+            });
+
+            document.getElementById("graphsContainer")
+                .classList.remove("hidden");
+        }
+
+        async function getLifeExpectancy() {
+
+            const country = document.getElementById('country').value;
+            const thinness = parseFloat(document.getElementById('thinness').value);
+            const thinness59 = parseFloat(document.getElementById('thinness59').value);
+            const bmi = parseFloat(document.getElementById('bmi').value);
+            const infantdeaths = parseInt(document.getElementById('infantdeaths').value);
+            const underfivedeaths = parseInt(document.getElementById('underfivedeaths').value);
+
+            if (!country || isNaN(thinness) || isNaN(thinness59) || isNaN(bmi)) {
+                alert("Please fill all fields correctly.");
+                return;
+            }
+
+            try {
+
+                document.getElementById("calculateBtn")
+                    .innerText = "Analyzing...";
+
+                const response = await fetch("http://127.0.0.1:8000/nutrition", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        Country: country,
+                        'Thinness  1-19 years': thinness,
+                        'Thinness 5-9 years': thinness59,
+                        BMI: bmi,
+                        'infant deaths': infantdeaths,
+                        'under-five deaths': underfivedeaths
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+
+                    const expectancy = data.prediction.prediction['Life expectancy'];
+                    const nutrition = data.prediction.prediction['nutrition'];
+
+                    document.getElementById("topSection")
+                        .classList.add("hidden");
+
+                    document.getElementById("resultCard")
+                        .classList.remove("hidden");
+
+                    document.getElementById("countryName")
+                        .innerText = title(country);
+
+                    document.getElementById("result")
+                        .innerText = expectancy.toFixed(2);
+
+                    updateRiskBar(nutrition);
+                    updateBadge(nutrition);
+
+                    createStatCards(
+                        expectancy,
+                        nutrition,
+                        bmi,
+                        infantdeaths
+                    );
+
+                    drawChart(
+                        thinness,
+                        thinness59,
+                        bmi,
+                        infantdeaths,
+                        expectancy,
+                        nutrition
+                    );
+
+                    generateInsights(
+                        thinness,
+                        infantdeaths,
+                        bmi,
+                        nutrition
+                    );
+                }
+
+                else {
+                    alert("Error calculating life expectancy.");
+                }
+
+            }
+
+            catch (error) {
+                console.error(error);
+                alert("Error connecting to server.");
+            }
+
+            finally {
+                document.getElementById("calculateBtn")
+                    .innerText = "Analyze Nutrition & Life Expectancy";
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>

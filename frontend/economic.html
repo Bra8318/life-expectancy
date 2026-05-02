@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8" />
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0" />
+
+    <title>Economic Life Expectancy Predictor</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        * {
+            font-family: 'Outfit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            overflow-x: hidden;
+            background:
+                radial-gradient(circle at top left,
+                    rgba(59, 130, 246, 0.15),
+                    transparent 25%),
+
+                radial-gradient(circle at bottom right,
+                    rgba(6, 182, 212, 0.18),
+                    transparent 25%),
+
+                linear-gradient(to bottom right,
+                    #eff6ff,
+                    #ffffff,
+                    #ecfeff);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .card-hover {
+            transition: all 0.35s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 20px 50px rgba(0, 0, 0, 0.08),
+                0 0 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #2563eb, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-18px);
+            }
+        }
+
+        .animate-fade {
+            animation: fade 0.9s ease;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(37, 99, 235, 0.3);
+            border-radius: 30px;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 0%;
+            height: 2px;
+            background: #2563eb;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .input-style {
+            width: 100%;
+            margin-top: 12px;
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid rgb(229 231 235);
+            background: rgba(255, 255, 255, 0.7);
+            outline: none;
+            transition: 0.3s;
+            font-size: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-style:focus {
+            box-shadow: 0 0 0 4px rgba(191, 219, 254, 0.7);
+        }
+    </style>
+
+</head>
+
+<body class="min-h-screen relative">
+
+    <!-- BACKGROUND BLOBS -->
+    <div
+        class="absolute top-0 left-0 w-72 h-72 bg-blue-300 rounded-full blur-3xl opacity-20 floating">
+    </div>
+
+    <div
+        class="absolute bottom-0 right-0 w-72 h-72 bg-cyan-300 rounded-full blur-3xl opacity-20 floating">
+    </div>
+
+    <!-- NAVBAR -->
+    <nav
+        class="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass rounded-full px-8 py-4 w-[95%] max-w-6xl shadow-2xl">
+
+        <div class="flex items-center justify-between">
+
+            <!-- LOGO -->
+            <div class="flex items-center gap-4">
+
+                <div
+                    class="w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white text-2xl shadow-lg">
+                    🌍
+                </div>
+
+                <div>
+
+                    <h1 class="text-2xl font-extrabold gradient-text">
+                        Travel Health AI
+                    </h1>
+
+                    <p class="text-gray-500 text-sm">
+                        Economic Analytics Dashboard
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- NAV LINKS -->
+            <div class="hidden md:flex gap-8 text-gray-700 font-semibold">
+
+                <a href="index.html"
+                    class="nav-link hover:text-blue-600 transition">
+                    Home
+                </a>
+
+                <a href="#topSection"
+                    class="nav-link hover:text-blue-600 transition">
+                    Predictor
+                </a>
+
+                <a href="#chartsSection"
+                    class="nav-link hover:text-blue-600 transition">
+                    Analytics
+                </a>
+
+                <a href="#insightsSection"
+                    class="nav-link hover:text-blue-600 transition">
+                    Insights
+                </a>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+    <!-- MAIN -->
+    <div class="max-w-7xl mx-auto px-4 pt-36 pb-20">
+
+        <!-- HERO -->
+        <div class="text-center animate-fade">
+
+            <h1
+                class="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-800 leading-tight">
+
+                Economic
+
+                <span class="gradient-text">
+                    Life Expectancy
+                </span>
+
+                <br>
+
+                Intelligence System
+
+            </h1>
+
+            <p
+                class="max-w-3xl mx-auto mt-8 text-gray-600 text-lg leading-relaxed">
+
+                Discover how economic conditions influence healthcare quality,
+                living standards, and travel safety before planning your journey.
+
+            </p>
+
+        </div>
+
+        <!-- MAIN GLASS -->
+        <div
+            class="glass rounded-[40px] p-6 md:p-10 mt-16 shadow-2xl animate-fade">
+
+            <!-- FORM SECTION -->
+            <div id="topSection">
+
+                <!-- TOGGLE -->
+                <div class="mb-8">
+
+                    <button onclick="toggleInstructions()"
+                        class="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-7 py-4 rounded-2xl font-bold shadow-xl hover:scale-105 transition-all">
+
+                        Economic Form Instructions
+
+                    </button>
+
+                    <!-- INSTRUCTIONS -->
+                    <div id="instructions"
+                        class="hidden mt-8 glass rounded-[30px] p-8">
+
+                        <div
+                            class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 text-gray-700">
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    Country
+                                </h3>
+
+                                <p class="mt-2">
+                                    Enter the country name you want to analyze.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    GDP
+                                </h3>
+
+                                <p class="mt-2">
+                                    GDP per capita indicates economic strength.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    Income Composition
+                                </h3>
+
+                                <p class="mt-2">
+                                    Enter value between 0 and 1.
+                                </p>
+
+                            </div>
+
+                            <div>
+
+                                <h3 class="font-bold text-xl text-blue-600">
+                                    Expenditure
+                                </h3>
+
+                                <p class="mt-2">
+                                    Healthcare & development expenditure.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- FORM -->
+                <div id="formSection">
+
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Country
+                            </label>
+
+                            <input id="country"
+                                type="text"
+                                placeholder="Enter Country Name"
+                                class="input-style">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Status
+                            </label>
+
+                            <select id="status"
+                                class="input-style">
+
+                                <option value="">
+                                    Select Status
+                                </option>
+
+                                <option value="Developed">
+                                    Developed
+                                </option>
+
+                                <option value="Developing">
+                                    Developing
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                GDP Per Capita
+                            </label>
+
+                            <input id="gdp"
+                                type="number"
+                                placeholder="Enter GDP"
+                                class="input-style">
+
+                        </div>
+
+                        <div>
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Income Composition
+                            </label>
+
+                            <input id="income"
+                                type="number"
+                                step="0.01"
+                                placeholder="0 - 1"
+                                class="input-style">
+
+                        </div>
+
+                        <div class="md:col-span-2">
+
+                            <label class="font-bold text-lg text-gray-700">
+                                Total Expenditure
+                            </label>
+
+                            <input id="expenditure"
+                                type="number"
+                                placeholder="Enter Expenditure"
+                                class="input-style">
+
+                        </div>
+
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button onclick="getLifeExpectancy()"
+                        id="predictBtn"
+                        class="w-full mt-10 bg-gradient-to-r from-blue-600 to-cyan-500 text-white py-5 rounded-3xl text-2xl font-bold shadow-2xl hover:scale-[1.01] transition-all">
+
+                        Predict Life Expectancy
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- RESULT -->
+            <div id="resultSection"
+                class="hidden mt-14 animate-fade">
+
+                <!-- RESULT CARD -->
+                <div
+                    class="bg-gradient-to-r from-blue-600 to-cyan-500 rounded-[40px] p-10 text-white shadow-2xl">
+
+                    <div
+                        class="flex flex-col lg:flex-row items-center justify-between gap-10">
+
+                        <!-- LEFT -->
+                        <div>
+
+                            <div class="flex items-center gap-5">
+
+                                <div
+                                    class="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-5xl">
+                                    🌍
+                                </div>
+
+                                <div>
+
+                                    <h2 id="countryName"
+                                        class="text-4xl font-extrabold">
+                                    </h2>
+
+                                    <p class="text-white/80 text-lg mt-2">
+                                        AI Travel Economic Report
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                            <div class="mt-10">
+
+                                <p class="text-lg opacity-90">
+                                    Predicted Life Expectancy
+                                </p>
+
+                                <h1 id="result"
+                                    class="text-7xl font-extrabold mt-2">
+                                </h1>
+
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT -->
+                        <div class="w-full lg:w-[420px]">
+
+                            <div
+                                class="bg-white/10 rounded-3xl p-7 backdrop-blur-xl border border-white/20">
+
+                                <div class="flex justify-between mb-4">
+
+                                    <span class="font-semibold text-lg">
+                                        Travel Health Score
+                                    </span>
+
+                                    <span id="scoreText"
+                                        class="font-bold">
+                                    </span>
+
+                                </div>
+
+                                <div
+                                    class="w-full h-6 bg-white/20 rounded-full overflow-hidden">
+
+                                    <div id="riskBar"
+                                        class="h-6 rounded-full transition-all duration-1000">
+                                    </div>
+
+                                </div>
+
+                                <div id="travelBadge"
+                                    class="mt-6 bg-white text-blue-600 font-bold py-3 rounded-2xl text-center shadow-lg">
+                                </div>
+
+                                <!-- DOWNLOAD -->
+                                <button onclick="downloadReport()"
+                                    class="w-full mt-6 bg-white text-blue-600 font-bold py-4 rounded-2xl hover:scale-105 transition-all shadow-xl">
+
+                                    📄 Download Report
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- STATS -->
+                <div id="statsCards"
+                    class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-12">
+                </div>
+
+                <!-- TWO COLUMN -->
+                <div id="chartsSection"
+                    class="grid grid-cols-1 xl:grid-cols-2 gap-10 mt-14 items-start">
+
+                    <!-- LEFT -->
+                    <div class="space-y-8">
+
+                        <div
+                            class="bg-white rounded-[32px] p-6 shadow-xl card-hover">
+
+                            <h2
+                                class="text-2xl font-bold text-gray-800 mb-6">
+                                Economic Radar Analysis
+                            </h2>
+
+                            <canvas id="chart"></canvas>
+
+                        </div>
+
+                        <div
+                            class="bg-white rounded-[32px] p-6 shadow-xl card-hover">
+
+                            <h2
+                                class="text-2xl font-bold text-gray-800 mb-6">
+                                World Comparison
+                            </h2>
+
+                            <canvas id="worldChart"></canvas>
+
+                        </div>
+
+                        <div
+                            class="bg-white rounded-[32px] p-6 shadow-xl card-hover">
+
+                            <h2
+                                class="text-2xl font-bold text-gray-800 mb-6">
+                                Top Country Rankings
+                            </h2>
+
+                            <canvas id="rankingChart"></canvas>
+
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT -->
+                    <div id="insightsSection"
+                        class="bg-white rounded-[32px] shadow-2xl p-8 sticky top-28">
+
+                        <h2
+                            class="text-4xl font-extrabold text-gray-800">
+                            AI Travel Insights
+                        </h2>
+
+                        <p
+                            class="text-gray-500 mt-3 text-lg">
+                            Personalized recommendations based on your analysis.
+                        </p>
+
+                        <div id="insights"
+                            class="mt-8 space-y-6 max-h-[1000px] overflow-y-auto custom-scroll pr-2">
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        function toggleInstructions() {
+
+            document.getElementById("instructions")
+                .classList.toggle("hidden");
+        }
+
+        function title(str) {
+
+            return str.charAt(0).toUpperCase() +
+                str.slice(1).toLowerCase();
+        }
+
+        function normalize(value, max) {
+
+            return (value / max) * 100;
+        }
+
+        let radarChart, lineChart, rankingChart;
+
+        function drawCharts(api, country,
+            gdp, income, expenditure, prediction) {
+
+            // RADAR
+            const ctx1 =
+                document.getElementById("chart")
+                    .getContext("2d");
+
+            if (radarChart) radarChart.destroy();
+
+            radarChart = new Chart(ctx1, {
+
+                type: "radar",
+
+                data: {
+
+                    labels: [
+                        "GDP",
+                        "Income",
+                        "Expenditure",
+                        "Life"
+                    ],
+
+                    datasets: [{
+
+                        label: title(country),
+
+                        data: [
+                            normalize(gdp, 100000),
+                            income * 100,
+                            normalize(expenditure, 100),
+                            prediction
+                        ],
+
+                        backgroundColor:
+                            "rgba(59,130,246,0.2)",
+
+                        borderColor:
+                            "#2563eb",
+
+                        borderWidth: 3,
+
+                        pointRadius: 5
+                    }]
+                }
+            });
+
+            // LINE
+            const ctx2 =
+                document.getElementById("worldChart")
+                    .getContext("2d");
+
+            if (lineChart) lineChart.destroy();
+
+            lineChart = new Chart(ctx2, {
+
+                type: "line",
+
+                data: {
+
+                    labels: [
+                        "GDP",
+                        "Income",
+                        "Expenditure",
+                        "Life"
+                    ],
+
+                    datasets: [
+
+                        {
+                            label: "World Average",
+
+                            data: [
+                                api.world_stat.mean.GDP,
+                                api.world_stat.mean["Income composition of resources"],
+                                api.world_stat.mean["Total expenditure"],
+                                api.world_stat.mean["Life expectancy"]
+                            ],
+
+                            borderColor: "#06b6d4",
+
+                            backgroundColor:
+                                "rgba(6,182,212,0.1)",
+
+                            fill: true,
+
+                            tension: 0.4,
+
+                            borderWidth: 4
+                        },
+
+                        {
+                            label: title(country),
+
+                            data: [
+                                gdp,
+                                income,
+                                expenditure,
+                                prediction
+                            ],
+
+                            borderColor: "#2563eb",
+
+                            backgroundColor:
+                                "rgba(37,99,235,0.1)",
+
+                            fill: true,
+
+                            tension: 0.4,
+
+                            borderWidth: 4
+                        }
+
+                    ]
+                }
+            });
+
+            // BAR
+            const ctx3 =
+                document.getElementById("rankingChart")
+                    .getContext("2d");
+
+            if (rankingChart) rankingChart.destroy();
+
+            rankingChart = new Chart(ctx3, {
+
+                type: "bar",
+
+                data: {
+
+                    labels:
+                        api.ranking.map(r => r.Country),
+
+                    datasets: [{
+
+                        label: "Life Expectancy",
+
+                        data:
+                            api.ranking.map(r =>
+                                r["Life expectancy"]),
+
+                        backgroundColor:
+                            "rgba(59,130,246,0.8)",
+
+                        borderRadius: 20
+                    }]
+                },
+
+                options: {
+                    indexAxis: 'y'
+                }
+            });
+        }
+
+        function updateRiskBar(prediction) {
+
+            const bar =
+                document.getElementById("riskBar");
+
+            const score =
+                document.getElementById("scoreText");
+
+            bar.style.width = `${prediction}%`;
+
+            score.innerText =
+                `${prediction.toFixed(0)} / 100`;
+
+            if (prediction < 55) {
+
+                bar.className =
+                    "h-6 rounded-full bg-red-500 transition-all duration-1000";
+            }
+
+            else if (prediction < 70) {
+
+                bar.className =
+                    "h-6 rounded-full bg-yellow-400 transition-all duration-1000";
+            }
+
+            else {
+
+                bar.className =
+                    "h-6 rounded-full bg-green-400 transition-all duration-1000";
+            }
+        }
+
+        function updateBadge(prediction) {
+
+            const badge =
+                document.getElementById("travelBadge");
+
+            if (prediction >= 80) {
+
+                badge.innerText =
+                    "Excellent Travel Environment";
+            }
+
+            else if (prediction >= 70) {
+
+                badge.innerText =
+                    "Strong Healthcare & Infrastructure";
+            }
+
+            else if (prediction >= 60) {
+
+                badge.innerText =
+                    "Moderate Health Conditions";
+            }
+
+            else {
+
+                badge.innerText =
+                    "Travel With High Precautions";
+            }
+        }
+
+        function generateInsights(prediction) {
+
+            const insights =
+                document.getElementById("insights");
+
+            insights.innerHTML = "";
+
+            const suggestions = [
+
+                {
+                    icon: "🏥",
+                    title: "Healthcare Research",
+                    text: "Research nearby hospitals, clinics, and emergency medical support before your journey."
+                },
+
+                {
+                    icon: "💊",
+                    title: "Carry Medicines",
+                    text: "Keep prescriptions, emergency medicines, and travel insurance during your trip."
+                },
+
+                {
+                    icon: "🚰",
+                    title: "Food & Water Safety",
+                    text: "Avoid unsafe drinking water and eat hygienic food while traveling."
+                },
+
+                {
+                    icon: "📍",
+                    title: "Emergency Contacts",
+                    text: "Save embassy numbers, hotel details, and local emergency contacts."
+                }
+
+            ];
+
+            if (prediction < 60) {
+
+                suggestions.push({
+
+                    icon: "⚠️",
+
+                    title: "High Risk Alert",
+
+                    text: "Lower life expectancy may indicate healthcare, sanitation, or infrastructure issues."
+
+                });
+            }
+
+            suggestions.forEach(item => {
+
+                insights.innerHTML += `
+
+                    <div class="glass rounded-[28px] p-7 shadow-lg card-hover">
+
+                        <div class="flex gap-5">
+
+                            <div class="text-5xl">
+                                ${item.icon}
+                            </div>
+
+                            <div>
+
+                                <h3 class="text-2xl font-bold text-gray-800">
+                                    ${item.title}
+                                </h3>
+
+                                <p class="text-gray-600 mt-3 leading-relaxed text-lg">
+                                    ${item.text}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+            });
+        }
+
+        function createStats(gdp,
+            income, expenditure, prediction) {
+
+            const stats =
+                document.getElementById("statsCards");
+
+            stats.innerHTML = "";
+
+            const cards = [
+
+                {
+                    icon: "💰",
+                    title: "GDP",
+                    value: gdp
+                },
+
+                {
+                    icon: "📈",
+                    title: "Income",
+                    value: income
+                },
+
+                {
+                    icon: "🏥",
+                    title: "Expenditure",
+                    value: expenditure
+                },
+
+                {
+                    icon: "🌍",
+                    title: "Life Expectancy",
+                    value: prediction.toFixed(2)
+                }
+
+            ];
+
+            cards.forEach(card => {
+
+                stats.innerHTML += `
+
+                    <div class="bg-white rounded-[28px] p-7 shadow-xl card-hover">
+
+                        <div class="flex justify-between items-center">
+
+                            <div>
+
+                                <p class="text-gray-500 text-lg">
+                                    ${card.title}
+                                </p>
+
+                                <h2 class="text-4xl font-extrabold mt-4 text-gray-800">
+                                    ${card.value}
+                                </h2>
+
+                            </div>
+
+                            <div class="text-5xl">
+                                ${card.icon}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                `;
+            });
+        }
+
+        function downloadReport() {
+
+            const country =
+                document.getElementById("countryName")
+                    .innerText;
+
+            const life =
+                document.getElementById("result")
+                    .innerText;
+
+            const score =
+                document.getElementById("scoreText")
+                    .innerText;
+
+            const badge =
+                document.getElementById("travelBadge")
+                    .innerText;
+
+            const insights =
+                document.getElementById("insights")
+                    .innerText;
+
+            const report = `
+
+TRAVEL HEALTH AI REPORT
+
+Country: ${country}
+
+Predicted Life Expectancy:
+${life} Years
+
+Travel Health Score:
+${score}
+
+Travel Condition:
+${badge}
+
+AI Recommendations:
+${insights}
+
+Generated By:
+Travel Health AI System
+
+Generated On:
+${new Date().toLocaleString()}
+
+            `;
+
+            const blob =
+                new Blob([report],
+                    { type: "text/plain" });
+
+            const url =
+                URL.createObjectURL(blob);
+
+            const a =
+                document.createElement("a");
+
+            a.href = url;
+
+            a.download =
+                `${country}_travel_report.txt`;
+
+            a.click();
+
+            URL.revokeObjectURL(url);
+        }
+
+        async function getLifeExpectancy() {
+
+            const country =
+                document.getElementById("country")
+                    .value;
+
+            const status =
+                document.getElementById("status")
+                    .value;
+
+            const gdp =
+                document.getElementById("gdp")
+                    .value;
+
+            const income =
+                document.getElementById("income")
+                    .value;
+
+            const expenditure =
+                document.getElementById("expenditure")
+                    .value;
+
+            if (!country || !status ||
+                !gdp || !income || !expenditure) {
+
+                alert("Please fill all fields.");
+
+                return;
+            }
+
+            try {
+
+                document.getElementById("predictBtn")
+                    .innerText = "Analyzing Economic Data...";
+
+                document.getElementById("topSection")
+                    .classList.add("hidden");
+
+                document.getElementById("resultSection")
+                    .classList.remove("hidden");
+
+                document.getElementById("result")
+                    .innerHTML = `
+                    <div class="flex justify-center">
+                        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-white"></div>
+                    </div>
+                `;
+
+                const response =
+                    await fetch(
+                        "http://127.0.0.1:8000/economic",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "content-type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+
+                                Country: country,
+                                Status: status,
+                                GDP: gdp,
+                                Income_Composition_of_Resources: income,
+                                Total_Expenditure: expenditure
+
+                            })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                const prediction =
+                    data.prediction.prediction
+                    ["Life expectancy"];
+
+                if (data.status === "success") {
+
+                    document.getElementById("countryName")
+                        .innerText = title(country);
+
+                    document.getElementById("result")
+                        .innerText =
+                        prediction.toFixed(2);
+
+                    updateRiskBar(prediction);
+
+                    updateBadge(prediction);
+
+                    createStats(
+                        gdp,
+                        income,
+                        expenditure,
+                        prediction
+                    );
+
+                    drawCharts(
+                        data.prediction,
+                        country,
+                        gdp,
+                        income,
+                        expenditure,
+                        prediction
+                    );
+
+                    generateInsights(prediction);
+                }
+
+                else {
+
+                    alert("Prediction failed.");
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Error connecting to server."
+                );
+            }
+
+            finally {
+
+                document.getElementById("predictBtn")
+                    .innerText = "Predict Life Expectancy";
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
