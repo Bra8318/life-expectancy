@@ -19,6 +19,8 @@ threadpoolctl
 
 gitpython
 
+pycountry
+pycountry_convert
 altair
 pyarrow
 watchdog
