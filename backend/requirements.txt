@@ -25,8 +25,8 @@ pandas==2.2.3
 pillow==11.2.1
 protobuf==6.31.0
 pyarrow==20.0.0
-pydantic==2.7.4
-pydantic_core==2.18.4
+pydantic==2.11.4
+pydantic_core==2.33.2
 pydeck==0.9.1
 python-dateutil==2.9.0.post0
 pytz==2025.2
